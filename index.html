@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>拿铁 · 体态对比编辑器</title>
+  <meta name="description" content="拿铁工作室体态对比图片编辑器：插入照片、绘制标记、编辑文字、导出高清图片。">
+  <meta name="theme-color" content="#f7ef7c"><link rel="icon" type="image/svg+xml" href="assets/favicon.svg"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="editor-updates.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="./" aria-label="拿铁体态对比编辑器首页"><span class="brand-mark">N<span>↗</span></span><span class="brand-name">拿铁<span>体态对比编辑器</span></span><span class="version">V1.1.0</span></a>
+    <div class="header-actions">
+      <span class="save-state" id="saveState"><i></i>本机自动保存</span>
+      <button class="icon-button" id="undo" title="撤销 Ctrl+Z" aria-label="撤销" data-icon="undo"></button>
+      <button class="icon-button" id="redo" title="重做 Ctrl+Shift+Z" aria-label="重做" data-icon="redo"></button>
+      <span class="header-divider"></span>
+      <button class="plain-button project-action" id="openProject" title="打开之前保存的可编辑项目"><span data-icon="folder"></span>打开项目</button>
+      <button class="plain-button project-action" id="saveProject" title="保存包含照片与标记的项目文件"><span data-icon="save"></span>保存项目</button>
+      <button class="export-button" id="exportButton"><span data-icon="download"></span>导出图片<span class="export-count">↗</span></button>
+    </div>
+  </header>
+  <main class="editor-layout">
+    <aside class="sidebar">
+      <div class="sidebar-heading"><span class="eyebrow">YOUR COMPARISON, YOUR STORY</span><h1>让每一次改变，都看得见<span>。</span></h1><p>沿用原版模板，几步完成前后对比。</p></div>
+      <div class="tabs" role="tablist" aria-label="编辑内容">
+        <button class="tab active" role="tab" id="tabPhotos" aria-controls="panelPhotos" aria-selected="true" data-tab="photos">照片 <span>01</span></button>
+        <button class="tab" role="tab" id="tabText" aria-controls="panelText" aria-selected="false" data-tab="text">文字 <span>02</span></button>
+        <button class="tab" role="tab" id="tabMarks" aria-controls="panelMarks" aria-selected="false" data-tab="marks">标记 <span>03</span></button>
+      </div>
+      <div class="panels">
+        <section class="panel" id="panelPhotos" role="tabpanel" aria-labelledby="tabPhotos">
+          <div class="section-title"><h2>插入前后照片</h2><span class="small-label">等比例显示</span></div>
+          <div class="photo-card active" data-photo="0" tabindex="0" role="button" aria-label="上传或选择前照片">
+            <div class="photo-thumb" id="thumb0"><span data-icon="image"></span></div><div class="photo-card-copy"><strong><b>01</b> 前</strong><span id="photoName0">点击上传，或拖入图片</span></div><button class="photo-replace" data-upload="0" title="上传前照片" aria-label="上传前照片" data-icon="plus"></button>
+          </div>
+          <div class="photo-card" data-photo="1" tabindex="0" role="button" aria-label="上传或选择后照片">
+            <div class="photo-thumb" id="thumb1"><span data-icon="image"></span></div><div class="photo-card-copy"><strong><b>02</b> 后</strong><span id="photoName1">点击上传，或拖入图片</span></div><button class="photo-replace" data-upload="1" title="上传后照片" aria-label="上传后照片" data-icon="plus"></button>
+          </div>
+          <p class="microcopy">支持 JPG、PNG、WebP。可直接把照片拖入画框。</p>
+          <div class="divider"></div>
+          <div class="section-title"><h2>调整构图</h2><span class="editing-tag" id="activePhotoName">前</span></div>
+          <div id="photoControls">
+            <div class="control-label"><label for="photoZoom">照片缩放</label><output id="photoZoomValue">100%</output></div><input type="range" id="photoZoom" min="50" max="5000" value="100" aria-label="照片缩放百分比">
+            <div class="photo-zoom-entry"><button type="button" id="photoZoomOut" title="照片缩小 10%" aria-label="照片缩小 10%" data-icon="minus"></button><label><input type="number" id="photoZoomNumber" min="50" max="5000" step="10" value="100" aria-label="照片精确缩放百分比"><span>%</span></label><button type="button" id="photoZoomIn" title="照片放大 10%" aria-label="照片放大 10%" data-icon="plus"></button><span class="photo-zoom-limit">最高 5000%</span></div>
+            <div class="control-label"><label for="photoRotation">旋转</label><output id="photoRotationValue">0°</output></div><input type="range" id="photoRotation" min="-20" max="20" step="0.1" value="0" aria-label="照片旋转角度">
+            <div class="photo-buttons"><button class="secondary-button" id="resetPhoto"><span data-icon="fit"></span>重置构图</button><button class="secondary-button danger-text" id="removePhoto" aria-label="移除当前照片"><span data-icon="trash"></span>移除</button></div>
+          </div>
+          <div class="tip-card"><span data-icon="hand"></span><div><strong>把照片摆到合适的位置</strong><p>手机单指拖动照片，双指缩放。选中照片后，方向键每次移动 1 像素，Shift + 方向键每次移动 10 像素。</p></div></div>
+          <label class="switch-row"><span><strong>对齐辅助线</strong><small>辅助定位，导出时自动隐藏</small></span><input type="checkbox" id="guides" checked><span class="switch"></span></label>
+          <div class="privacy-note"><span data-icon="shield"></span>照片仅保存在当前浏览器，项目文件可另行备份。</div>
+        </section>
+        <section class="panel" id="panelText" role="tabpanel" aria-labelledby="tabText" hidden>
+          <div class="section-title"><h2>图片说明</h2><span class="small-label">实时同步到画布</span></div>
+          <label class="field"><span>前说明</span><input id="field-beforeCaption" data-field="beforeCaption" maxlength="40" value="身体不对称明显"></label>
+          <label class="field"><span>后说明</span><input id="field-afterCaption" data-field="afterCaption" maxlength="40" value="明显改善"></label>
+          <div class="divider"></div><div class="section-title"><h2>服务信息</h2><span class="small-label">点击画布文字也可编辑</span></div>
+          <label class="field"><span>操作者</span><input id="field-operator" data-field="operator" maxlength="35" value="操作者：若芳教练"></label>
+          <label class="field"><span>被操作者</span><input id="field-member" data-field="member" maxlength="35" value="被操作者：某某某"></label>
+          <label class="field"><span>有效时长</span><input id="field-duration" data-field="duration" maxlength="35" value="有效时长：45分钟"></label>
+          <label class="field"><span>操作模块</span><input id="field-module" data-field="module" maxlength="65" value="操作模块：某某某"></label>
+          <label class="field"><span>改善记录 <small id="improvementCount">0 / 180</small></span><textarea id="field-improvement" data-field="improvement" rows="4" maxlength="180" placeholder="改善：填写本次调整的部位、变化与记录"></textarea></label>
+          <div class="tip-card"><span data-icon="text"></span><div><strong>文字随内容自动适应</strong><p>姓名、时长与说明都可自由改写，改善记录会自动换行。也可点击画布上的文字直接输入。</p></div></div>
+        </section>
+        <section class="panel" id="panelMarks" role="tabpanel" aria-labelledby="tabMarks" hidden>
+          <div class="section-title"><h2>标记样式</h2><span id="selectedMarkLabel" class="small-label">应用于新标记</span></div>
+          <div class="field"><span>颜色</span><div class="color-swatches" id="colorSwatches"><button data-color="#e64d3e" style="--swatch:#e64d3e" title="红色" aria-label="红色" class="chosen"></button><button data-color="#f4b831" style="--swatch:#f4b831" title="黄色" aria-label="黄色"></button><button data-color="#488b6f" style="--swatch:#488b6f" title="绿色" aria-label="绿色"></button><button data-color="#4286df" style="--swatch:#4286df" title="蓝色" aria-label="蓝色"></button><button data-color="#272923" style="--swatch:#272923" title="黑色" aria-label="黑色"></button><button data-color="#ffffff" style="--swatch:#ffffff" title="白色" aria-label="白色"></button><label class="custom-color" title="自定义颜色"><input type="color" id="markColor" value="#e64d3e" aria-label="自定义标记颜色"><span data-icon="palette"></span></label></div></div>
+          <div class="control-label"><label for="markWidth">线条粗细</label><output id="markWidthValue">3 px</output></div><input type="range" id="markWidth" min="1" max="12" value="3" aria-label="标记线条粗细">
+          <div class="field"><span>线型</span><div class="segmented" id="dashOptions"><button data-dash="solid" class="active">实线</button><button data-dash="dashed">虚线</button><button data-dash="dotted">点线</button></div></div>
+          <label class="field"><span>箭头样式</span><select id="markArrow"><option value="none">无箭头</option><option value="end">单向箭头</option><option value="both">双向箭头</option></select></label>
+          <label class="field" id="markTextField" hidden><span>标记文字</span><input id="markText" maxlength="60" placeholder="输入标记文字"></label>
+          <div id="markFontControl" hidden><div class="control-label"><label for="markFontSize">文字大小</label><output id="markFontSizeValue">26 px</output></div><input id="markFontSize" type="range" min="14" max="64" value="26"></div>
+          <label class="switch-row"><span><strong>角度自动吸附</strong><small>水平、垂直及每隔 22.5° 自动定位</small></span><input type="checkbox" id="angleSnap" checked><span class="switch"></span></label>
+          <div class="tip-card" id="toolTip"><span data-icon="spark"></span><div><strong id="toolTipTitle">自由标注，让对比更清楚</strong><p id="toolTipText">拖动绘制时自动吸附标准方向。Shift 强制吸附，Alt 暂时自由调整。选中标记后可用方向键微调。</p></div></div>
+          <div class="divider"></div><div class="section-title"><h2>画布标记 <span id="markCount">0</span></h2><button class="text-button" id="clearMarks">全部清除</button></div>
+          <div id="markList" class="mark-list"></div>
+          <button class="secondary-button wide danger-text" id="deleteMark" disabled><span data-icon="trash"></span>删除选中的标记</button>
+        </section>
+      </div>
+      <div class="sidebar-footer"><span class="tiny-brand">NATIE FITNESS</span><div class="mobile-projects"><button class="text-button" id="mobileOpen">打开项目</button><button class="text-button" id="mobileSave">保存项目</button></div><button class="text-button" id="showHelp">使用帮助 <span>↗</span></button></div>
+    </aside>
+    <section class="workspace" aria-label="模板画布编辑区">
+      <div class="workspace-topline">
+      <span class="workspace-document">体态调整 · 前后对比，827 × 1217</span>
+      <div class="toolbar" role="toolbar" aria-label="绘图工具" id="toolbar">
+        <button data-tool="select" class="tool active" title="选择 / 移动 (V)" aria-label="选择和移动"><span data-icon="cursor"></span><small>选择</small></button><span class="tool-divider"></span>
+        <button data-tool="line" class="tool" title="绘制直线 (L)" aria-label="绘制直线"><span data-icon="line"></span><small>直线</small></button>
+        <button data-tool="dashed" class="tool" title="绘制虚线" aria-label="绘制虚线"><span data-icon="dashed"></span><small>虚线</small></button>
+        <button data-tool="arrow" class="tool" title="绘制箭头 (A)" aria-label="绘制箭头"><span data-icon="arrow"></span><small>箭头</small></button>
+        <button data-tool="doubleArrow" class="tool" title="绘制双向箭头" aria-label="绘制双向箭头"><span data-icon="doubleArrow"></span><small>双箭头</small></button>
+        <button data-tool="curve" class="tool" title="绘制弧线 (C)" aria-label="绘制弧线"><span data-icon="curve"></span><small>弧线</small></button>
+        <button data-tool="angle" class="tool" title="三次点击绘制角度" aria-label="绘制角度"><span data-icon="angle"></span><small>角度</small></button>
+        <button data-tool="ellipse" class="tool" title="绘制圆圈 (O)" aria-label="绘制圆圈"><span data-icon="ellipse"></span><small>圆圈</small></button>
+        <button data-tool="rect" class="tool" title="绘制矩形 (R)" aria-label="绘制矩形"><span data-icon="rect"></span><small>矩形</small></button>
+        <button data-tool="brush" class="tool" title="自由画笔 (B)" aria-label="自由画笔"><span data-icon="brush"></span><small>画笔</small></button>
+        <button data-tool="text" class="tool" title="添加文字 (T)" aria-label="添加标记文字"><span data-icon="text"></span><small>文字</small></button>
+      </div>
+      <div class="view-actions"><button class="expand-button" id="expandWorkspace" aria-pressed="false" title="切换大图编辑"><span data-icon="fit"></span><span id="expandLabel">大图编辑</span></button><button class="text-button" id="newProject" title="新建对比图" aria-label="新建对比图"><span data-icon="plus"></span><span class="action-label">新建</span></button></div>
+      </div>
+      <div class="canvas-scroll" id="canvasScroll"><div class="canvas-stage" id="canvasStage"><div class="poster-shadow" id="poster"><canvas id="canvas" width="827" height="1217" tabindex="0" aria-label="体态对比模板，点击照片上传，拖动绘制标记，点击下方文字编辑"></canvas><textarea id="textOverlay" aria-label="直接编辑模板文字" hidden></textarea><div class="loading-cover" id="loadingCover"><span></span>正在载入模板</div></div></div></div>
+      <div class="workspace-footer"><span class="interaction-hint" id="interactionHint"><span data-icon="hand"></span>选中后用方向键微调 · 空格拖动画布</span><span class="snap-status" id="snapStatus" role="status" hidden></span><div class="zoom-controls"><button id="zoomOut" title="缩小画布" aria-label="缩小画布" data-icon="minus"></button><input id="canvasZoom" type="range" min="25" max="400" value="100" aria-label="画布缩放"><label class="zoom-number"><input id="canvasZoomNumber" type="number" min="25" max="400" step="5" value="100" aria-label="画布缩放百分比"><span>%</span></label><button id="zoomIn" title="放大画布" aria-label="放大画布" data-icon="plus"></button><button id="fitWidth" title="铺满可用宽度">适合宽度</button><button id="fitCanvas" title="查看完整模板">适合窗口</button></div></div>
+    </section>
+  </main>
+  <input type="file" accept="image/*" id="file0" hidden><input type="file" accept="image/*" id="file1" hidden><input type="file" accept=".json,.latte" id="projectFile" hidden>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <dialog id="exportDialog"><form method="dialog"><div class="dialog-title"><span class="eyebrow">READY TO SHARE</span><button class="icon-button close-dialog" type="submit" value="cancel" aria-label="关闭" data-icon="close"></button><h2>保存这一次改变<span>。</span></h2><p>导出画面将隐藏辅助线与编辑控制点。</p></div><label class="field"><span>文件名</span><input id="exportName" value="拿铁_体态前后对比" maxlength="80"></label><div class="dialog-grid"><label class="field"><span>图片格式</span><select id="exportFormat"><option value="png">PNG · 清晰无损</option><option value="jpeg">JPG · 文件更小</option></select></label><label class="field"><span>图片尺寸</span><select id="exportScale"><option value="1">原始 · 827 × 1217</option><option value="2">高清 · 1654 × 2434</option><option value="3" selected>超清 · 2481 × 3651</option></select></label></div><button class="export-button wide" id="confirmExport" type="button"><span data-icon="download"></span>下载成品图片</button><p class="dialog-footnote">照片、文字和标记会合成为一张图片。</p></form></dialog>
+  <dialog id="helpDialog"><div class="dialog-title"><span class="eyebrow">A LITTLE GUIDE</span><button class="icon-button close-dialog" id="closeHelp" aria-label="关闭" data-icon="close"></button><h2>从照片，到一张对比图<span>。</span></h2></div><div class="help-steps"><div><b>01</b><section><strong>上传两张照片</strong><p>前放左侧，后放右侧。拖动照片定位，用缩放与旋转调整构图。选中照片或标记后，方向键移动 1 像素，Shift + 方向键移动 10 像素。</p></section></div><div><b>02</b><section><strong>放大查看与编辑</strong><p>底部滑杆和百分比可将画布缩放至 25%—400%。点击「大图编辑」展开工作区。Ctrl + 滚轮缩放，空格 + 拖动平移，Esc 退出大图。</p></section></div><div><b>03</b><section><strong>用标记强调变化</strong><p>直线、虚线、箭头与双箭头在绘制和调整端点时，会自动吸附水平、垂直及每隔 22.5° 的方向。Shift 强制吸附，Alt 暂时关闭。弧线中间控制点可自由调整。</p></section></div><div><b>04</b><section><strong>编辑、导出或留待下次</strong><p>直接点击模板下方文字编辑，导出 PNG / JPG 图片。「保存项目」保留照片、构图和标记，之后可重新打开；当前草稿在浏览器自动保存。</p></section></div></div><div class="shortcut-note">↑↓←→ 微调 1 px · Shift + 方向键 10 px · Ctrl+Z 撤销 · Delete 删除 · 空格拖动画布 · Esc 取消 / 退出大图</div></dialog>
+  <dialog id="newDialog"><div class="dialog-title"><h2>开始一张新的对比图？</h2><p>当前浏览器草稿将被替换。需要保留时，请先保存项目。</p></div><div class="dialog-actions"><button class="secondary-button" id="cancelNew">继续编辑</button><button class="export-button" id="confirmNew">新建对比图</button></div></dialog>
+<dialog id="exportResult"><div class="dialog-title"><button id="closeExportResult" class="icon-button" aria-label="关闭">×</button><h2>图片已生成</h2><p id="exportResultName"></p><p>手机可长按图片保存到相册。若下载后缀异常，请长按保存或使用系统分享。</p></div><img id="exportPreview" style="display:block;width:100%;height:auto" alt="导出图片"><div class="dialog-actions"><a class="export-button" id="downloadImage">下载图片</a><button class="secondary-button" id="shareImage">分享 / 存储图片</button></div></dialog>
+  <script type="module" src="app.js"></script>
+</body></html>
